@@ -1,0 +1,94 @@
+package lab4;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Iterator;
+import java.util.Scanner;
+
+public class lab44 {
+    public static void main(String[] args) throws FileNotFoundException {
+        Scanner filAttLasaFran = new Scanner(new File("C:\\Users\\marui\\OneDrive\\桌面\\Lab\\lab4\\text.txt"));
+
+        BSST<String, Integer> graf = new BSST(150);
+
+        String namnPaStat;
+        String startPunkt;
+        String slutPunkt;
+
+        int finns = 0;
+
+        while (filAttLasaFran.hasNextLine()) {
+            namnPaStat = filAttLasaFran.next().toUpperCase();
+
+            if (!graf.contains(namnPaStat)) {
+                graf.put(namnPaStat, finns); //Alla stater som vi kan gå igenom
+                finns++;
+            }
+        }
+
+        Digraph Graf = new Digraph(finns);
+
+        Scanner scanner = new Scanner(new File("C:\\Users\\marui\\OneDrive\\桌面\\Lab\\lab4\\text.txt"));
+        while(scanner.hasNextLine()){
+            startPunkt = scanner.next().toUpperCase();
+            slutPunkt = scanner.next().toUpperCase();
+
+            Graf.addEdge((graf.get(startPunkt)), graf.get(slutPunkt));
+        }
+
+        Scanner input1 = new Scanner(System.in);
+        Scanner input2 = new Scanner(System.in);
+        boolean isTrue = true;
+        while(isTrue) { //kommer vara sant hela tiden tills vi avslutar för att slippa läsa om filen
+            System.out.println("Vill du skriva ut en graf mellan två stater? Skriv 1 för ja och 2 för nej. ");
+
+            int inp = input1.nextInt();
+            switch (inp) {
+                case 1:
+                    System.out.println("Välj en stat att starta i: ");
+                    String start = input2.nextLine().toUpperCase();
+                    System.out.println("Välj en stat du vill åka till från din startpunkt: ");
+                    String slut = input2.nextLine().toUpperCase();
+
+                    int sp = graf.get(start); //startpunkt
+                    int slp = graf.get(slut); //slutpunkt
+
+                    BFDP bfs = new BFDP(Graf, sp); //skapa en ny dfp
+                    Iterator iterator = graf.keys().iterator();
+                    String at = graf.min();
+
+                    if(bfs.hasPathTo(slp)) { //finns det en väg sådan att vi kan gå från stat 1 till stat 2?
+                        //System.out.println(start + " till " + slut + " går denna väg: ");
+                        for (int a : bfs.pathTo(slp)) { //Iterera över vägarna
+                            if(a == slp) //Om noden vi är på == startpunkten
+                               System.out.println();
+
+                            else{
+                                while (true) { //går genom nod
+                                    if (graf.get(at) == a){
+                                        //System.out.print(" " + at + " ");
+                                        break;
+                                    }
+                                    at = (String) iterator.next();
+                                }
+
+                                at = graf.min();
+                                //System.out.print(" ---> ");
+                                iterator = graf.keys().iterator();
+                            }
+                        }
+                        System.out.println("Det finns en directed path mellan " + start + " och " + slut + "!");
+                    }
+                    else
+                        System.out.println("Det finns ingen directed path mellan " + start + " och " + slut + "!");
+
+                    break; //kommer tillbaka till frågan i början
+
+                case 2: //om input == 2
+                    isTrue = false;
+
+                default:
+                    System.out.println("Bye bye! :)");
+            }
+        }
+    }
+}
